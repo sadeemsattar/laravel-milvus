@@ -137,6 +137,37 @@ class MilvusClient
         return $this->sendRequest("POST", $path, $body);
     }
 
+  /**
+     * @param $collection
+     * @param $outputFields
+     * @param $vectors
+     * @param $topk
+     * @param $annsField
+     * @param $metricType
+     * @param $dsl experession
+     * @return void
+     */
+    function hybridSearch($collection, $outputFields, $vectors, $topk = 100, $annsField = "embedding", $metricType="IP", $dsl)
+    {
+        $path = "/api/v1/search";
+        $body = [
+            "collection_name" => $collection,
+            "output_fields" => $outputFields,
+            "dsl_type" => 1,
+            "dsl" => $dsl,
+            "search_params" => [
+                ["key"  => "topk", "value"=> (string)$topk],
+                ["key"  => "anns_field", "value"=> $annsField],
+                ["key"  => "params", "value" => json_encode(["nprobe" => 4])],
+                ["key"  => "metric_type", "value"=> $metricType],
+                ["key"  => "round_decimal", "value"=> "-1"],
+            ],
+            "vectors"=> $vectors,
+        ];
+        return $this->sendRequest("POST", $path, $body);
+    }
+
+
     protected function sendRequest($method, $path, $body = [])
     {
         $options = [
